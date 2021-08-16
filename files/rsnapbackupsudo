@@ -1,0 +1,2 @@
+#allows users in the caclient group to try and sign certificates
+rsnapbackup ALL = NOPASSWD: /usr/bin/rsnapshot

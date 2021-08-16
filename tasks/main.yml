@@ -1,0 +1,40 @@
+- name: Import OS specific vars
+  include_vars: "{{ ansible_distribution }}.yml"
+
+- name: install common packages
+  package:
+    name: "{{ item }}"
+  with_items: "{{ maesto_rsnapshot_packages }}"
+
+- name: create backup user
+  user:
+    name: rsnapbackup
+    createhome: yes
+    generate_ssh_key: yes
+    ssh_key_bits: 2048
+    ssh_key_file: .ssh/id_rsa
+
+- name: ensure known hosts is present
+  copy:
+    content: ""
+    dest: "/home/rsnapbackup/.ssh/known_hosts"
+    force: no
+    owner: rsnapbackup
+    group: rsnapbackup
+    mode: "0700"
+
+- name: create rsnapshot.conf.d directory
+  file:
+    state: directory
+    path: "/etc/rsnapshot.conf.d/"
+
+- name: copy rsnapshot config
+  copy:
+    src: rsnapshot.conf
+    dest: "/etc/rsnapshot.conf"
+
+- name: copy sudoersfile to sudoers.d
+  copy:
+    src: "rsnapbackupsudo"
+    dest: "/etc/sudoers.d/rsnapbackup"
+    mode: "0440"
